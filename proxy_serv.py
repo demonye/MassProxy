@@ -3,7 +3,6 @@
 import sys
 import errno
 import threading
-from select import *
 from ps_util import *
 from ps_struct import *
 from argparse import ArgumentParser
