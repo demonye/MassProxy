@@ -75,12 +75,12 @@ def read_handler(fd_):
                 remove_monitor(fd)
                 break
             opfd.sendall(data)
+            ep.register(fd_, READMODE)
         except socket.error as e:
             if e.args[0] in (errno.EWOULDBLOCK, errno.EAGAIN):
                 break
             else:
                 raise
-
 
 def main():
     parser = ArgumentParser(description="A simple proxy server for massive connections")
@@ -103,6 +103,7 @@ def main():
     while True:
         for (fd, evts) in ep.poll(tmout, maxevts):
             if evts & (READ | ERROR):
+                ep.unregister(fd)
                 pool.apply(read_handler, [fd])
 
 
