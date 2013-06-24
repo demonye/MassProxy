@@ -7,6 +7,7 @@ Introduction
 ------------
 The main issue of MassProxy to resolve is for massive clients connecting to a bunch of servers via a single (or few) entries. MassProxy is trying to maintain lots of network connections and transparently transfer data between clients and servers. To approach this, MassProxy is using scalable event notification mechanism (say, epoll in Linux 2.6+ for now and intended to be ported to other platforms in the future, like kqueue in FreeBSD).
 
+For now, it is a simple demo and not fully tested. It just supports IPv4 for represent the main idea of a real project I wrote in C/C++ before.
 
 Design
 ------
