@@ -1,10 +1,12 @@
 #!/usr/bin/env python2
 
-import sys
 import errno
 import threading
-from ps_util import *
-from ps_struct import *
+import socket
+import struct
+from select import epoll, EPOLLIN, EPOLLOUT, EPOLLERR, EPOLLHUP, EPOLLET
+from ps_util import bind_socket, connect_to
+from ps_struct import ConnItem, ConnList
 from argparse import ArgumentParser
 from multiprocessing.pool import ThreadPool
 
@@ -20,12 +22,14 @@ READMODE = READ | ERROR | EPOLLET
 WRITEMODE = WRITE | ERROR | EPOLLET
 BUFSIZE = 4096
 
+
 def read_header(fd):
     _ip = fd.recv(4)
     ip = socket.inet_ntoa(_ip)
     _port = fd.recv(2)
     port = struct.unpack('>H', _port)[0]
     return ip, port
+
 
 def add_monitor(fd):
     host, port = read_header(fd)
@@ -40,6 +44,7 @@ def add_monitor(fd):
         else:
             fd.close()
 
+
 def remove_monitor(fd):
     with monitor_lock:
         item = conn_list[fd.fileno()]
@@ -50,6 +55,7 @@ def remove_monitor(fd):
         fd.close()
         opfd.close()
 
+
 def accept_process(sock):
     while True:
         try:
@@ -59,11 +65,12 @@ def accept_process(sock):
             if ex.args[0] != errno.EINTR:
                 raise
 
+
 def read_handler(fd_):
-    thd = threading.currentThread()
+    # thd = threading.currentThread()
     item = conn_list.get(fd_, None)
     fd = item.fd
-    if item == None:
+    if item is None:
         return
     opfd = item.opfd
     while True:
@@ -81,18 +88,20 @@ def read_handler(fd_):
             else:
                 raise
 
+
 def main():
-    parser = ArgumentParser(description="A simple proxy server for massive connections")
+    parser = ArgumentParser(
+        description="A simple proxy server for massive connections")
     parser.add_argument('-p', '--port', type=int, default=1234,
-            help="Socket port to listen" )
+                        help="Socket port to listen")
     parser.add_argument('--thread', type=int, default=4,
-            help="How many working threads to handle connections" )
+                        help="How many working threads to handle connections")
     parser.add_argument('--timeout', type=int, default=-1,
-            help="Timeout seconds for epoll to wait" )
+                        help="Timeout seconds for epoll to wait")
     parser.add_argument('--maxevents', type=int, default=20,
-            help="Maximum events one time for epoll to wait" )
+                        help="Maximum events one time for epoll to wait")
     args = parser.parse_args()
-    port, thds, tmout, maxevts = args.port, args.thread, args.timeout, args.maxevents
+    thds, tmout, maxevts = args.thread, args.timeout, args.maxevents
 
     sock = bind_socket(args.port)
     pool = ThreadPool(thds)
@@ -108,4 +117,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

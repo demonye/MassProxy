@@ -3,6 +3,7 @@
 import SocketServer
 import sys
 
+
 class MyTCPHandler(SocketServer.BaseRequestHandler):
     """
     The RequestHandler class for our server.
@@ -19,6 +20,7 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
         print self.data
         # just send back the same data, but upper-cased
         self.request.sendall(self.data.upper())
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

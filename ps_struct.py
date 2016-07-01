@@ -41,14 +41,13 @@ class ConnList(dict):
         with ConnList._lock:
             super(ConnList, self).__setitem__(k, item)
             super(ConnList, self).__setitem__(
-                    opfd.fileno(),
-                    ConnItem(opfd, fd, rt)
-                    )
-
+                opfd.fileno(),
+                ConnItem(opfd, fd, rt)
+            )
 
     def __delitem__(self, k):
         item = self.get(k, None)
-        if item == None:
+        if item is None:
             return
         print "item", item
         opfd = item.opfd
@@ -57,4 +56,3 @@ class ConnList(dict):
         with ConnList._lock:
             super(ConnList, self).__delitem__(k)
             super(ConnList, self).__delitem__(opfd.fileno())
-
