@@ -15,3 +15,13 @@ There are 3 main parts used in MassProxy: I/O event monitor, Work thread pool, C
 
 ![](images/MassProxy.png)
 
+Test
+----
+This proxy server only works under the linux due to the use of epoll.
+
+```bash
+cd test
+python ./tcp_svr.py 8888    # start test server
+python ../proxy_serv.py -p 8080    # stat proxy server
+bash ./test.sh    # start 10 clients, send data to test server via proxy
+```
