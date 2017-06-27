@@ -35,10 +35,10 @@ class ConnList(dict):
 
     def __setitem__(self, k, item):
         item.valid_value()
-        fd, opfd, t = item.fd, item.opfd, item.ctype
-        rt = self.revert_type(t)
+        fd, opfd, ctype = item.fd, item.opfd, item.ctype
+        rt = self.revert_type(ctype)
 
-        with ConnList._lock:
+        with self._lock:
             super(ConnList, self).__setitem__(k, item)
             super(ConnList, self).__setitem__(
                 opfd.fileno(),
@@ -53,6 +53,6 @@ class ConnList(dict):
         opfd = item.opfd
         print "opfd", opfd.fileno()
         print "opfd.fileno()", self.get(opfd.fileno(), None)
-        with ConnList._lock:
+        with self._lock:
             super(ConnList, self).__delitem__(k)
             super(ConnList, self).__delitem__(opfd.fileno())
